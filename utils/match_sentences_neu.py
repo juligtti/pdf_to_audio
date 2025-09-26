@@ -18,8 +18,10 @@ __all__ = ["pdf_to_text"]
 
 def pdf_to_text(file, save_text=False):
     with pdfplumber.open(file) as pdf:
-        start_inhalt, ende_inhalt = choose_range([page.page_number for page in pdf.pages],
-                                                 "Seitennummer der PDF-Datei", "min_max")
+        start_inhalt, ende_inhalt = choose_range(
+            [page.page_number for page in pdf.pages],
+            "Seitennummer der PDF-Datei", "min_max"
+        )
 
         crop_tuple = compute_crop_area(pdf)
         verz = detect_inhaltsverzeichnis(pdf, crop_tuple, start_inhalt)
@@ -148,9 +150,11 @@ def finalize_lines(all_lines: list[str], verz):
 
 
 def detect_inhaltsverzeichnis(pdf, crop_tuple, start_inhalt):
-    auto_inhalt = choose(["erkennen", "Seiten angeben"],
-                         text="Inhaltsverzeichnis selbst erkennen oder Seiten festlegen?",
-                         default=0)
+    auto_inhalt = choose(
+        ["erkennen", "Seiten angeben"],
+        text="Inhaltsverzeichnis selbst erkennen oder Seiten festlegen?",
+        default=0
+    )
     if auto_inhalt == "erkennen":
         iv_pages = None
         for n, page in enumerate(pdf.pages[1:start_inhalt - 1]):
@@ -169,7 +173,8 @@ def detect_inhaltsverzeichnis(pdf, crop_tuple, start_inhalt):
         start_verz, ende_verz = choose_range(
             [page.page_number for page in pdf.pages if page.page_number < start_inhalt],
             "Seitennummer der PDF-Datei",
-            "min_max")
+            "min_max"
+        )
         iv_pages = [page.crop(crop_tuple).extract_text() for page in pdf.pages[int(start_verz) - 1:int(ende_verz)]]
     verz = []
     for page in iv_pages:
@@ -213,7 +218,7 @@ def edit_text_basics(text, verz):
             if line in verz:
                 line = f"#LB##LB#Kapitel {line}#LB#"
             else:
-                line = f"#LB##LB#Kapitel {line} {old_lines[n+1].strip()}#LB#"
+                line = f"#LB##LB#Kapitel {line} {old_lines[n + 1].strip()}#LB#"
                 n += 1
         else:
             line = search_objekt(line)
@@ -250,25 +255,25 @@ def search_objekt(t):
 #     return text
 
 
-# def detect_word_bindings(all_lines):
-#     footnote = re.compile(r"(\D\.|[!?:])\d{1,3}(\s*)")
-#     all_lines = [re.sub(footnote, r"\1\n", line) if re.search(footnote, line) else line for line in all_lines]
-#     satzende = re.compile(r"([.!?:])( )+$")
-#     for n, t in enumerate(all_lines[:-1]):
-#         t2 = all_lines[n + 1]
-#         t2_first_word = t2.split(" ", 1)[0]
-#         if (
-#                 t.endswith("-") and
-#                 t2[0].islower() and not
-#         any(x in t2_first_word for x in ("und", "oder", "beziehungsweise", "/", "&"))
-#         ):
-#             line = t[:-1]
-#         elif satzende.search(t):
-#             line = re.sub(satzende, r"\1\n", t)
-#         else:
-#             line = t
-#         all_lines[n] = line
-#     return all_lines
+def detect_word_bindings(all_lines):
+    footnote = re.compile(r"(\D\.|[!?:])\d{1,3}(\s*)")
+    all_lines = [re.sub(footnote, r"\1\n", line) if re.search(footnote, line) else line for line in all_lines]
+    satzende = re.compile(r"([.!?:])( )+$")
+    for n, t in enumerate(all_lines[:-1]):
+        t2 = all_lines[n + 1]
+        t2_first_word = t2.split(" ", 1)[0]
+        if (
+                t.endswith("-") and
+                t2[0].islower() and not
+        any(x in t2_first_word for x in ("und", "oder", "beziehungsweise", "/", "&"))
+        ):
+            line = t[:-1]
+        elif satzende.search(t):
+            line = re.sub(satzende, r"\1\n", t)
+        else:
+            line = t
+        all_lines[n] = line
+    return all_lines
 
 
 # def match_objekt(all_lines):
@@ -289,7 +294,7 @@ def detect_footnote(lines):
     lines = lines[::-1]
     for n, line in enumerate(lines[:-1]):
         line = line.strip()
-        if re.search(r"^\d+[^.]", line) or re.search(r"^\d+[^.]", lines[n+1].strip()):
+        if re.search(r"^\d+[^.]", line) or re.search(r"^\d+[^.]", lines[n + 1].strip()):
             # findet in dieser oder der folgenden Zeile eine Fußnote
             count = 0
         elif line == "":

@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-import numpy as np
 from collections.abc import Collection
-from typing import Union
 
 __all__ = ["choose", "choose_range", "choose_mult"]
 
@@ -20,11 +18,11 @@ def make_dict_and_print(liste: Collection):
     if isinstance(liste, dict):
         for n, (k, v) in enumerate(liste.items(), start=1):
             print(n, " - ", k, f"({v})")
-            liste_dic[n-1] = k
+            liste_dic[n - 1] = k
     else:
         for n, i in enumerate(liste, start=1):
             print(n, " - ", i)
-            liste_dic[n-1] = i
+            liste_dic[n - 1] = i
     return liste_dic
 
 
@@ -78,7 +76,7 @@ def choose(
 def choose_range(
         liste: Collection,
         text: str = "BESCHREIBUNG",
-        typ: str = "array") -> Union[np.ndarray, tuple]:
+        typ: str = "array") -> list[int] | tuple[int, int] | None:
 
     print("\n===== choose_range =====\n")
 
@@ -118,16 +116,18 @@ def choose_range(
     print("\n==========\n")
 
     if typ == "array":
-        return np.arange(start, end+1)
+        return list(range(start, end + 1))
     elif typ == "min_max":
         return start, end
+    else:
+        return None
 
 
 def choose_mult(
         liste: Collection,
         text: str = None,
         nums: bool = False,
-        default: Union[int, Collection] = None) -> list:
+        default: int | Collection | None = None) -> list:
 
     print("\n===== choose_mult =====\n")
 
@@ -170,7 +170,7 @@ def choose_mult(
                 except ValueError:
                     print("Mindestens eine Eingabe entsprach keiner ganzzahligen Zahl.")
                     return choose_mult(liste, text, nums)
-                nummern.extend([x for x in range(val1, val2+1) if x not in nummern])
+                nummern.extend([x for x in range(val1, val2 + 1) if x not in nummern])
             else:
                 try:
                     if int(eintrag) not in nummern:
@@ -179,10 +179,10 @@ def choose_mult(
                     print("Mindestens eine Eingabe entsprach keiner ganzzahligen Zahl.")
                     return choose_mult(liste, text, nums)
 
-    auswahl = [liste_dic[num-1] for num in nummern if num-1 in liste_dic]
+    auswahl = [liste_dic[num - 1] for num in nummern if num - 1 in liste_dic]
     print("\nAuswahl:\n- ", "\n- ".join(list(map(str, auswahl))), sep="")
     print("\n==========\n")
     if nums:
-        return [num-1 for num in nummern if num-1 in liste_dic]
+        return [num - 1 for num in nummern if num - 1 in liste_dic]
     else:
         return auswahl
